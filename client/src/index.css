@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css?family=Arvo|Open+Sans&display=swap');
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.container {
+  width: 100%;
+  height: 100vh;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 85%;
+}
+
+.button--default {
+  width: 100%;
+  max-width: 500px;
+  margin: 15px 0;
+  height: 55px;
+  border: none;
+  background-color: #2C2C2C;
+  border-radius: 4px;
+  color: #FAFAFA;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 16px;
+  font-family: 'Open Sans', sans-serif;
+}
