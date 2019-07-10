@@ -1,0 +1,22 @@
+{
+  "name": "chameleon-clone",
+  "version": "1.0.0",
+  "description": "A clone of the board game Chameleon.",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.1",
+    "nodemon": "^1.19.1"
+  },
+  "scripts": {
+    "start": "concurrently 'npm run react' 'npm run server'",
+    "react": "cd client && npm run start",
+    "server": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jason Prickett",
+  "license": "MIT"
+}
