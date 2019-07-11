@@ -8,6 +8,8 @@ body {
 
 * {
   box-sizing: border-box;
+  color: #FAFAFA;
+  font-family: 'Arvo', serif;
 }
 
 code {
@@ -42,4 +44,78 @@ code {
   letter-spacing: 2px;
   font-size: 16px;
   font-family: 'Open Sans', sans-serif;
+  cursor: pointer;
+}
+
+.main-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 75px;
+  font-size: 32px;
+}
+
+.title h2 {
+  margin: 0;
+}
+
+.title h1 {
+  font-size: 100px;
+  margin: 0;
+  letter-spacing: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 85%;
+  flex: 1;
+  margin-top: 100px;
+}
+
+input {
+  border: none;
+  border-radius: 4px;
+  height: 60px;
+  margin: 0 0 15px 0;
+  color: #2C2C2C;
+  padding: 0 10px;
+  font-size: 32px;
+  text-align: center;
+}
+
+label {
+  font-size: 32px;
+}
+
+.--join {
+  background-color: #478BBC;
+}
+
+.--lobby {
+  background-color: #A266EE;
+}
+
+.back {
+  cursor: pointer;
+  width: 0;
+  height: 0;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  border-right: 30px solid #FAFAFA;
+  position: absolute;
+  top: 15px;
+  left: 15px;
 }

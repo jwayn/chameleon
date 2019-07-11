@@ -1,0 +1,10 @@
+.lobby__players {
+    width: 100%;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.lobby__players h2 {
+    text-align: center;
+}
