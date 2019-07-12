@@ -17,7 +17,8 @@ class App extends Component {
             rendered: 'splash',
             isHost: false,
             players: [],
-            code: ''
+            code: '',
+            message: ''
         }
     }
 
@@ -42,11 +43,21 @@ class App extends Component {
             this.setState({code: data.code});
         })
 
+        socket.on('leave game', data => {
+            this.setState({message: data.message || ''});
+            this.leaveGame(socket);
+        })
+
         socket.on("update players", (players) => {
             console.log('Updating players for the lobby!');
             this.setState({players})
         })
         this.setState({socket});
+    }
+
+    leaveGame = (socket) => {
+        socket.emit('leave game');
+        this.setState({rendered: 'splash', isHost: false, players: [], code: ''});
     }
 
     renderPage = (page) => {
@@ -68,7 +79,7 @@ class App extends Component {
                     <JoinGame renderPage={this.renderPage} socket={this.state.socket} />
                 }
                 {this.state.rendered === 'lobby' &&
-                    <Lobby renderPage={this.renderPage} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} players={this.state.players} />
+                    <Lobby renderPage={this.renderPage} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} players={this.state.players} leaveGame={this.leaveGame} />
                 }
             </div>
         );

@@ -5,8 +5,7 @@ import './Lobby.css';
 export default class Lobby extends Component {
     
     back = () => {
-        this.props.renderPage('splash');
-        this.props.socket.emit('leave game');
+        this.props.leaveGame(this.props.socket);
     }
 
     render() {

@@ -13,8 +13,14 @@ class Game {
         this.code = generateCode(4);
         this.players = [];
         this.chat = [];
-
         this.playerJoin(host, socket);
+    }
+
+    shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
     playerJoin(player, socket) {
@@ -28,12 +34,27 @@ class Game {
     playerLeave(player) {
         this.players.splice(this.players.indexOf(player), 1);
         io.to(this.code).emit('update players', this.players.map(player => player.name));
+
+        //If there are no players left in the game, delete it.
+        if(player.isHost) {
+            games.splice(games.indexOf(this), 1)
+            io.to(this.code).emit('leave game', 'The host disbanded the game.');
+        }
     };
+
+    startRound() {
+        this.players.forEach(player => {
+            player.isChameleon = false;
+            player.wordGiven = '';
+            player.votedFor = '';
+        });
+    }
 }
 
 class Player {
     constructor(name, socket, socketId) {
         this.name = name;
+        this.isHost = false;
         this.id = uuid();
         this.points = 0;
         this.isChameleon = false;
@@ -75,7 +96,7 @@ io.on('connection', (socket) => {
     socket.on("create game", (name) => {
         // Create our new player instance
         let player = new Player(name, socket, socketId);
-        
+        player.isHost = true;
         // Create our new game instance
         let game = new Game(player, socket);
 
@@ -108,6 +129,7 @@ io.on('connection', (socket) => {
         games.forEach(game => {
             game.players.forEach(player => {
                 if(player.socket === socket) {
+                    socket.leave(game.code);
                     game.playerLeave(player);
                 }
             })
