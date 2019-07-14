@@ -26,7 +26,7 @@ export default class Lobby extends Component {
                     </div>
                     {this.props.isHost &&
                     <div className="button-group">
-                            <button className="button--default">Start Game</button>
+                            <button className="button--default" onClick={this.props.startGame}>Start Game</button>
                     </div>
                     }
                 </div>
