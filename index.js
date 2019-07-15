@@ -1,12 +1,24 @@
-const app = require('http').createServer();
-const io = require('socket.io')(app);
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 const uuid = require('uuid/v4');
 const topics = require('./topics');
 
 const port = process.env.PORT || 8080;
 
+app.use(express.json());
+
 let games = [];
 let connections = [];
+
+function getGame(code) {
+    games.forEach(game => {
+        if(game.code === code) {
+            return game;
+        }
+    })
+};
 
 class Game {
     constructor(host, socket) {
@@ -44,6 +56,14 @@ class Game {
         }
     };
 
+    getPlayer(socket) {
+        game.players.forEach(player => {
+            if(player.socket === socket) {
+                return player;
+            }
+        })
+    }
+
     startRound() {
         this.players.forEach(player => {
             player.isChameleon = false;
@@ -74,35 +94,59 @@ class Game {
     };
 
     startTimer(seconds, player) {
-        let timerSeconds = seconds;
 
-        let timerInterval = setInterval(() => {
-            io.to(this.code).emit('update timer', timerSeconds)
-            timerSeconds--;
-        }, seconds * 1000)
-
-        if(timerSeconds <= 0) {
-            clearInterval(timerInterval);
-            io.to(player.socketId).emit('turn over');
-            this.endTurn(player);
-        }
+        let self = this;
+        io.to(self.code).emit('update timer', seconds)
+        function countDown() {
+            io.to(self.code).emit('update timer', seconds)
+            seconds--;
+            if(seconds < 0) {
+                clearInterval(this.timerInterval);
+                self.endTurn(player);
+            }
+        };
+        
+        this.timerInterval = setInterval(countDown, 1000)
     }
 
     playerTurn(player) {
+        console.log(player.socketId);
         console.log(player.name + "'s turn");
-        this.startTimer(90, player);
-        io.to(player.socketId).emit('start turn');
+        io.to(player.socketId).emit('my turn');
+        io.to(this.code).emit('current turn', player.name);
+        this.startTimer(5, player);
     };
 
-    endTurn() {
-        if(this.turn == this.players.length) {
-            startVote();
+    endTurn(player) {
+        if(this.turn === this.players.length - 1) {
+            console.log('turns are over!');
+            //this.startVote();
         } else {
+            io.to(player.socketId).emit('turn over');
             this.turn++;
             this.playerTurn(this.players[this.turn]);
         }
     }
 }
+
+app.post('/join', async (req, res) => {
+    let room = req.body.code;
+    let name = req.body.name;
+
+    // Check existence of game, and add player to it if it exists. 
+    for(let i = 0; i < games.length; i++) {
+        if(games[i].code === room) {
+            if(games[i].status === 'lobby') {
+                return res.json({room})
+            } else {
+                return res.status(403).json({message: 'Game already in progress.'})
+            }
+        }
+    }
+    console.log('Bitch, you thought.');
+    res.status(404).json({message: 'Game does not exist.'})
+});
+
 
 class Player {
     constructor(name, socket, socketId) {
@@ -170,13 +214,14 @@ io.on('connection', (socket) => {
         for(let i = 0; i < games.length; i++) {
             if(games[i].code === room) {
                 if(games[i].status === 'lobby') {
-                    let player = new Player(name, socket);
+                    let player = new Player(name, socket, socketId);
                     games[i].playerJoin(player, socket);
                     socket.join(room);
                     io.to(socketId).emit('game joined', {code: games[i].code});
-                    break;
+                    return;
                 } else {
                     io.to(socketId).emit('error', {message: 'Game already in progress.'});
+                    return;
                 }
             }
         }
@@ -194,6 +239,10 @@ io.on('connection', (socket) => {
             })
         })
     })
+
+    socket.on("word submitted", code => {
+
+    });
 
     socket.on("start game", code => {
         console.log('Game starting.');
@@ -214,9 +263,9 @@ io.on('connection', (socket) => {
             })
         })
         connections.splice(connections.indexOf(socket), 1);
-    }))
+    }));
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Listening on port ${port}`)
 });

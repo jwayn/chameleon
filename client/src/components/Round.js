@@ -2,7 +2,19 @@ import React, { Component } from 'react'
 
 import './Round.css';
 
+
 export default class Round extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.clue = React.createRef();
+    }
+
+    submitWord = word => {
+        this.props.socket.emit('word submitted', {name: this.name.current.value, code: this.code.current.value.toUpperCase()});
+    }
+
     render() {
         return (
             <div>
@@ -34,12 +46,13 @@ export default class Round extends Component {
                             <h3>You are the CHAMELEON!</h3> 
                         </div>
                     }
-                    <div className="round__timer">{this.props.timer} seconds.</div>
-                    {this.props.myTurn === true &&
-                        <div>
+                    <div className="round__timer">{this.props.currentTurn} has {this.props.timer} seconds to answer.</div>
+                    {this.props.isMyTurn === true &&
+                        <div className="form-group">
+                            <label>Your clue:</label>
+                            <input maxLength="36" ref={this.clue} />
                             <div className="button-group">
-                                <label>Your answer</label>
-                                <button className="button--default" onClick={this.submitWord}>Submit</button> 
+                                <button className="button--default" onClick={this.submitWord}>Submit</button>
                             </div>
                         </div>
                     }

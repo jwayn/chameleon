@@ -3,7 +3,45 @@
     width: 100%;
     max-width: 500px;
     grid-template-columns: 25% 25% 25% 25%;
-    grid-template-rows: auto;
+    grid-template-rows: 20% 20% 20% 20%;
     justify-content: center;
+    grid-template-areas: "header header header header";
+    background-color: #FAFAFA;
+    font-family: 'Open Sans', Arial, Helvetica, sans-serif;
 }
 
+.round__topic__title {
+    grid-area: header;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000000;
+    font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+    font-weight: bold;
+}
+.round__topic__word {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px 5px;
+    color: #000000;
+    font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+    background-color: #FAFAFA;
+    font-size: 10px;
+}
+
+.round__topic__word:nth-child(8n+2),
+.round__topic__word:nth-child(8n+4),
+.round__topic__word:nth-child(8n+7),
+.round__topic__word:nth-child(8n+9),
+.round__topic__word:nth-child(8n+10),
+.round__topic__word:nth-child(8n+12),
+.round__topic__word:nth-child(8n+15),
+.round__topic__word:nth-child(8n+17) {
+    background-color:#E0E0E0;
+}
+
+.highlighted {
+    background-color: #45FFFF !important;
+}

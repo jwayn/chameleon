@@ -15,11 +15,36 @@ export default class JoinGame extends Component {
         this.props.renderPage('splash');
     }
 
-    join = () => {
-
+    join = async () => {
         let socket = this.props.socket;
-        socket.emit('join game', {name: this.name.current.value, code: this.code.current.value});
-        this.props.renderPage('lobby');
+        const body = {name: this.name.current.value, code: this.code.current.value};
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let game = await fetch('/join', options);
+        let jsonGame = await game.json();
+        if(game.status === 200) {
+            this.props.setCode(jsonGame.code);
+            socket.emit('join game', {name: this.name.current.value, code: this.code.current.value.toUpperCase()});
+            this.props.renderPage('lobby');
+        } else {
+            this.props.setMessage(jsonGame.message);
+        }
+
+        // 
+        // if(this.props.message === 'Game does not exist.') {
+        //     return;
+        // } else {
+        //     this.props.renderPage('lobby');
+        // }
+    }
+
+    forceUpper = () => {
+        this.code.current.value = this.code.current.value.toUpperCase();
     }
 
     render() {
@@ -34,7 +59,7 @@ export default class JoinGame extends Component {
                         <label>Name</label>
                         <input maxLength="12" ref={this.name} />
                         <label>Game Code</label>
-                        <input maxLength="4" ref={this.code} />
+                        <input maxLength="4" ref={this.code} onChange={this.forceUpper} />
                     </div>
                     <div className="button-group">
                         <button className="button--default" onClick={this.join}>Join Game</button>

@@ -7,7 +7,10 @@ import JoinGame from './components/JoinGame';
 import Lobby from './components/Lobby';
 import Round from './components/Round';
 
-const socketUrl = "http://localhost:8080";
+// enable vibration support
+navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+
+const socketUrl = "http://192.168.1.194:8080/";
 class App extends Component {
 
     constructor(props) {
@@ -20,7 +23,9 @@ class App extends Component {
             players: [],
             code: '',
             message: '',
-            topic: {}
+            topic: {},
+            timer: 0,
+            currentTurn: ''
         }
     }
 
@@ -54,6 +59,14 @@ class App extends Component {
             this.setState({players})
         });
 
+        socket.on("update timer", timer => {
+            this.setState({timer});
+        })
+
+        socket.on("error", message => {
+            this.setState({message});
+        })
+
         socket.on("game started", data => {
             if(data.playerType !== 'chameleon'){
                 console.log(data.topic);
@@ -68,13 +81,28 @@ class App extends Component {
         
         socket.on("my turn", () => {
             this.setState({isMyTurn: true});
+            if (navigator.vibrate) {
+                navigator.vibrate(3000);
+            }
         });
 
         socket.on("turn over", () => {
             this.setState({isMyTurn: false});
         });
 
+        socket.on("current turn", playerName => {
+            this.setState({currentTurn: playerName})
+        })
+
         this.setState({socket});
+    }
+
+    setCode = (code) => {
+        this.setState({code});
+    }
+    
+    setMessage = (message) => {
+        this.setState({message});
     }
 
     leaveGame = (socket) => {
@@ -85,7 +113,7 @@ class App extends Component {
     renderPage = (page) => {
         this.setState({
             rendered: page
-        })
+        });
     }
 
     startGame = () => {
@@ -103,13 +131,13 @@ class App extends Component {
                     <CreateGame renderPage={this.renderPage} socket={this.state.socket} setHost={this.setHost} />
                 }
                 {this.state.rendered === 'join' &&
-                    <JoinGame renderPage={this.renderPage} socket={this.state.socket} />
+                    <JoinGame renderPage={this.renderPage} socket={this.state.socket} message={this.state.message} setMessage={this.setMessage} setCode={this.setCode} />
                 }
                 {this.state.rendered === 'lobby' &&
                     <Lobby renderPage={this.renderPage} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} players={this.state.players} leaveGame={this.leaveGame} startGame={this.startGame} />
                 }
                 {this.state.rendered === 'round' &&
-                    <Round renderPage={this.renderPage} socket={this.state.socket} playerType={this.state.playerType} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
+                    <Round renderPage={this.renderPage} socket={this.state.socket} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
                 }
             </div>
         );
