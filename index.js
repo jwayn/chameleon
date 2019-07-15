@@ -13,11 +13,12 @@ let games = [];
 let connections = [];
 
 function getGame(code) {
-    games.forEach(game => {
-        if(game.code === code) {
-            return game;
+    console.log('Getting game with code: ', code);
+    for(let i = 0; i < games.length; i++) {
+        if (games[i].code === code) {
+            return games[i];
         }
-    })
+    }
 };
 
 class Game {
@@ -57,11 +58,11 @@ class Game {
     };
 
     getPlayer(socket) {
-        game.players.forEach(player => {
-            if(player.socket === socket) {
-                return player;
+        for(let i = 0; i < this.players.length; i++) {
+            if(this.players[i].socket === socket) {
+                return this.players[i];
             }
-        })
+        }
     }
 
     startRound() {
@@ -114,15 +115,17 @@ class Game {
         console.log(player.name + "'s turn");
         io.to(player.socketId).emit('my turn');
         io.to(this.code).emit('current turn', player.name);
-        this.startTimer(5, player);
+        this.startTimer(30, player);
     };
 
-    endTurn(player) {
+    endTurn() {
+        clearInterval(this.timerInterval);
         if(this.turn === this.players.length - 1) {
+            io.to(this.players[this.turn].socketId).emit('turn over');
             console.log('turns are over!');
             //this.startVote();
         } else {
-            io.to(player.socketId).emit('turn over');
+            io.to(this.players[this.turn].socketId).emit('turn over');
             this.turn++;
             this.playerTurn(this.players[this.turn]);
         }
@@ -142,8 +145,7 @@ app.post('/join', async (req, res) => {
                 return res.status(403).json({message: 'Game already in progress.'})
             }
         }
-    }
-    console.log('Bitch, you thought.');
+    };
     res.status(404).json({message: 'Game does not exist.'})
 });
 
@@ -155,7 +157,7 @@ class Player {
         this.id = uuid();
         this.points = 0;
         this.isChameleon = false;
-        this.wordGiven = '';
+        this.submittedWord = '';
         this.votedFor = '';
         this.socket = socket;
         this.socketId = socketId;
@@ -165,8 +167,8 @@ class Player {
         this.votedFor = player;
     };
 
-    giveWord(word) {
-        this.wordGiven = word;
+    submitWord(word) {
+        this.submittedWord = word;
     };
 }
 
@@ -240,8 +242,14 @@ io.on('connection', (socket) => {
         })
     })
 
-    socket.on("word submitted", code => {
-
+    socket.on("word submitted", data => {
+        console.log('Word submitted!');
+        console.log(data.word);
+        let currentGame = getGame(data.code);
+        console.log(currentGame);
+        currentGame.endTurn();
+        let currentPlayer = currentGame.getPlayer(socket);
+        currentPlayer.submitWord(data.word);
     });
 
     socket.on("start game", code => {

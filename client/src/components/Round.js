@@ -12,7 +12,7 @@ export default class Round extends Component {
     }
 
     submitWord = word => {
-        this.props.socket.emit('word submitted', {name: this.name.current.value, code: this.code.current.value.toUpperCase()});
+        this.props.socket.emit('word submitted', {code: this.props.code, word: this.clue.current.value});
     }
 
     render() {
