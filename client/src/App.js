@@ -6,6 +6,7 @@ import CreateGame from './components/CreateGame';
 import JoinGame from './components/JoinGame';
 import Lobby from './components/Lobby';
 import Round from './components/Round';
+import Vote from './components/Vote';
 
 // enable vibration support
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
@@ -28,7 +29,8 @@ class App extends Component {
             currentTurn: '',
             showAlert: false,
             alert: '',
-            messages: []
+            messages: [],
+            playerAnswers: []
         }
     }
 
@@ -100,7 +102,7 @@ class App extends Component {
 
         socket.on("alert", data => {
             this.createAlert(data.message);
-        })
+        });
 
         socket.on("current turn", playerName => {
             this.setState({currentTurn: playerName})
@@ -108,7 +110,16 @@ class App extends Component {
 
         socket.on("receive message", data => {
             this.setState({messages: [ ...this.state.messages, {author: data.author, content: data.content }]})
-        })
+        });
+
+        socket.on("start vote", answers => {
+            console.log(answers);
+            this.setState({playerAnswers: answers, rendered: 'vote'})
+        });
+
+        socket.on("answers in", data => {
+            this.setState({playerAnswers: data})
+        });
 
         this.setState({socket});
     }
@@ -154,6 +165,9 @@ class App extends Component {
                 }
                 {this.state.rendered === 'round' &&
                     <Round renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
+                }
+                {this.state.rendered === 'vote' &&
+                    <Vote renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} />
                 }
             </div>
         );

@@ -13,7 +13,6 @@ let games = [];
 let connections = [];
 
 function getGame(code) {
-    console.log('Getting game with code: ', code);
     for(let i = 0; i < games.length; i++) {
         if (games[i].code === code) {
             return games[i];
@@ -102,10 +101,12 @@ class Game {
 
         let self = this;
         io.to(self.code).emit('update timer', seconds)
-        function countDown() {
+        let countDown = () => {
             io.to(self.code).emit('update timer', seconds)
             seconds--;
             if(seconds < 0) {
+                console.log(this.code);
+                io.to(this.code).emit('receive message', {author: 'System', content: `${player.name} failed to give a clue in time.`});
                 clearInterval(this.timerInterval);
                 self.endTurn(player);
             }
@@ -117,6 +118,7 @@ class Game {
     playerTurn(player) {
         console.log(player.socketId);
         console.log(player.name + "'s turn");
+        io.to(this.code).emit('receive message', {author: 'System', content: `It is ${player.name}'s turn.`});
         io.to(player.socketId).emit('my turn');
         io.to(this.code).emit('current turn', player.name);
         this.startTimer(30, player);
@@ -127,12 +129,34 @@ class Game {
         if(this.turn === this.players.length - 1) {
             io.to(this.players[this.turn].socketId).emit('turn over');
             console.log('turns are over!');
-            //this.startVote();
+            this.startVote();
         } else {
             io.to(this.players[this.turn].socketId).emit('turn over');
             this.turn++;
             this.playerTurn(this.players[this.turn]);
         }
+    }
+
+    startVote() {
+        let seconds = 120;
+        const answers = this.players.map(player => {
+            return {id: player.id, name: player.name, answer: player.submittedWord}
+        });
+        console.log(answers);
+        io.to(this.code).emit('start vote', answers);
+        io.to(this.code).emit('update timer', seconds);
+        let countDown = () => {
+            io.to(this.code).emit('update timer', seconds);
+            seconds--;
+            if(seconds < 0) {
+                console.log(this.code);
+                // Get the player that was voted for, and compare to chameleon
+                // return playerVoted to vote over event
+                io.to(this.code).emit('vote over');
+            }
+        }
+
+        this.timerInterval = setInterval(countDown, 1000);
     }
 }
 
@@ -248,10 +272,10 @@ io.on('connection', (socket) => {
 
     socket.on("word submitted", data => {
         let currentGame = getGame(data.code);
-        currentGame.endTurn();
         let currentPlayer = currentGame.getPlayer(socket);
-        io.to(data.code).emit('alert', {message: `${currentPlayer.name}'s clue is ${data.word}.`});
         currentPlayer.submitWord(data.word);
+        io.to(data.code).emit('alert', {message: `${currentPlayer.name}'s clue is '${data.word}'.`});
+        currentGame.endTurn();
     });
 
     socket.on("start game", code => {
