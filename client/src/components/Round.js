@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 
+import Chat from './Chat';
+
 import './Round.css';
 
 
@@ -19,10 +21,6 @@ export default class Round extends Component {
         return (
             <div>
                 <div className="main-container --round">
-                    <div className="title">
-                        <h2>Uhhh</h2>
-                    </div>
-
                     <div className="round__topic">
                         <div className="round__topic__title">{this.props.topic.topic}</div>
                         {
@@ -56,6 +54,7 @@ export default class Round extends Component {
                             </div>
                         </div>
                     }
+                    <Chat messages={this.props.messages} code={this.props.code} socket={this.props.socket} />
                 </div>
             </div>
         )

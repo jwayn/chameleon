@@ -15,7 +15,8 @@ export default class JoinGame extends Component {
         this.props.renderPage('splash');
     }
 
-    join = async () => {
+    join = async e => {
+        e.preventDefault();
         let socket = this.props.socket;
         const body = {name: this.name.current.value, code: this.code.current.value};
         const options = {
@@ -55,15 +56,13 @@ export default class JoinGame extends Component {
                     <div className="title">
                         <h2>Join a Game</h2>
                     </div>
-                    <div className="form-group">
+                    <form className="form-group">
                         <label>Name</label>
                         <input maxLength="12" ref={this.name} />
                         <label>Game Code</label>
                         <input maxLength="4" ref={this.code} onChange={this.forceUpper} />
-                    </div>
-                    <div className="button-group">
-                        <button className="button--default" onClick={this.join}>Join Game</button>
-                    </div>
+                        <button className="button--default" onClick={this.join} type="submit">Join Game</button>
+                    </form>
                 </div>
             </div>
         )

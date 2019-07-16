@@ -46,6 +46,10 @@ class Game {
         io.to(this.code).emit('update players', this.players.map(player => player.name));
     };
 
+    sendMessage(message, player) {
+        io.to(this.code).emit('receive message', {author: player.name, content: message.content});
+    }
+
     playerLeave(player) {
         this.players.splice(this.players.indexOf(player), 1);
         io.to(this.code).emit('update players', this.players.map(player => player.name));
@@ -243,12 +247,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on("word submitted", data => {
-        console.log('Word submitted!');
-        console.log(data.word);
         let currentGame = getGame(data.code);
-        console.log(currentGame);
         currentGame.endTurn();
         let currentPlayer = currentGame.getPlayer(socket);
+        io.to(data.code).emit('alert', {message: `${currentPlayer.name}'s clue is ${data.word}.`});
         currentPlayer.submitWord(data.word);
     });
 
@@ -259,6 +261,13 @@ io.on('connection', (socket) => {
                 game.startRound();
             }
         })
+    })
+
+    socket.on("receive message", data => {
+        console.log(data);
+        const selectedGame = getGame(data.code);
+        const selectedPlayer = selectedGame.getPlayer(socket);
+        selectedGame.sendMessage(data, selectedPlayer);
     })
 
     socket.on("disconnect", (data => {

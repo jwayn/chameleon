@@ -13,7 +13,8 @@ export default class CreateGame extends Component {
         this.props.renderPage('splash');
     }
 
-    createGame = () => {
+    createGame = e => {
+        e.preventDefault();
         let socket = this.props.socket;
         socket.emit('create game', this.name.current.value);
         this.props.renderPage('lobby');
@@ -27,13 +28,11 @@ export default class CreateGame extends Component {
                     <div className="title">
                         <h2>Create a Game</h2>
                     </div>
-                    <div className="form-group">
+                    <form className="form-group">
                         <label>Name</label>
                         <input ref={this.name} />
-                    </div>
-                    <div className="button-group">
-                        <button className="button--default" onClick={this.createGame}>Create Game</button>
-                    </div>
+                        <button className="button--default" onClick={this.createGame} type="submit">Create Game</button>
+                    </form>
                 </div>
             </div>
         )

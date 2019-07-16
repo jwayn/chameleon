@@ -25,13 +25,21 @@ class App extends Component {
             message: '',
             topic: {},
             timer: 0,
-            currentTurn: ''
+            currentTurn: '',
+            showAlert: false,
+            alert: '',
+            messages: []
         }
     }
 
     componentDidMount() {
         this.initSocket();
     }
+
+    createAlert = (message) => {
+        console.log(message);
+        this.setState({messages: [ ...this.state.messages, {author: 'System', content: message} ]});
+    };
 
     initSocket = () => {
         const socket = io(socketUrl);
@@ -90,8 +98,16 @@ class App extends Component {
             this.setState({isMyTurn: false});
         });
 
+        socket.on("alert", data => {
+            this.createAlert(data.message);
+        })
+
         socket.on("current turn", playerName => {
             this.setState({currentTurn: playerName})
+        });
+
+        socket.on("receive message", data => {
+            this.setState({messages: [ ...this.state.messages, {author: data.author, content: data.content }]})
         })
 
         this.setState({socket});
@@ -137,7 +153,7 @@ class App extends Component {
                     <Lobby renderPage={this.renderPage} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} players={this.state.players} leaveGame={this.leaveGame} startGame={this.startGame} />
                 }
                 {this.state.rendered === 'round' &&
-                    <Round renderPage={this.renderPage} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
+                    <Round renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
                 }
             </div>
         );
