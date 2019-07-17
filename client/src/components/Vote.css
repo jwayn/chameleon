@@ -25,6 +25,12 @@
     cursor: pointer;
 }
 
+.vote__info__selected {
+    background-color: rgb(142, 235, 207);
+    transform: translateY(-4px);
+    box-shadow: 0 4px 5px rgba(0, 0, 0, .5);
+}
+
 
 
 
