@@ -135,7 +135,6 @@ class App extends Component {
     leaveGame = (socket) => {
         socket.emit('leave game');
         this.setState({
-            socket: null,
             rendered: 'splash',
             isHost: false,
             players: [],

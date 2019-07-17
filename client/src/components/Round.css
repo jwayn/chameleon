@@ -1,7 +1,6 @@
 .round__topic {
     display: grid;
     width: 100%;
-    max-width: 500px;
     grid-template-columns: 25% 25% 25% 25%;
     grid-template-rows: 20% 20% 20% 20% 20%;
     justify-content: center;

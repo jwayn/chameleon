@@ -162,6 +162,7 @@ class Game {
 }
 
 app.post('/join', async (req, res) => {
+    console.log('Trying to join...');
     let room = req.body.code;
     let name = req.body.name;
 
@@ -175,7 +176,7 @@ app.post('/join', async (req, res) => {
             }
         }
     };
-    res.status(404).json({message: 'Game does not exist.'})
+    res.status(403).json({message: 'Game does not exist.'});
 });
 
 

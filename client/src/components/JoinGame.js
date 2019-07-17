@@ -30,8 +30,12 @@ export default class JoinGame extends Component {
         let jsonGame = await game.json();
         if(game.status === 200) {
             this.props.setCode(jsonGame.code);
-            socket.emit('join game', {name: this.name.current.value, code: this.code.current.value.toUpperCase()});
-            this.props.renderPage('lobby');
+            if(this.name.current.value.length > 0 && this.code.current.value.length === 4) {
+                socket.emit('join game', {name: this.name.current.value, code: this.code.current.value.toUpperCase()});
+                this.props.renderPage('lobby');
+            } else {
+                console.log('Nice try!');
+            }
         } else {
             this.props.setMessage(jsonGame.message);
         }
