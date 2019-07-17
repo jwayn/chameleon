@@ -99,16 +99,15 @@ class Game {
 
     startTimer(seconds, player) {
 
-        let self = this;
-        io.to(self.code).emit('update timer', seconds)
+        io.to(this.code).emit('update timer', seconds)
         let countDown = () => {
-            io.to(self.code).emit('update timer', seconds)
+            console.log('lol timer is updating');
+            io.to(this.code).emit('update timer', seconds)
             seconds--;
             if(seconds < 0) {
-                console.log(this.code);
                 io.to(this.code).emit('receive message', {author: 'System', content: `${player.name} failed to give a clue in time.`});
                 clearInterval(this.timerInterval);
-                self.endTurn(player);
+                this.endTurn(player);
             }
         };
         
@@ -125,6 +124,7 @@ class Game {
     };
 
     endTurn() {
+        console.log('Turn ended!');
         clearInterval(this.timerInterval);
         if(this.turn === this.players.length - 1) {
             io.to(this.players[this.turn].socketId).emit('turn over');
@@ -153,6 +153,7 @@ class Game {
                 // Get the player that was voted for, and compare to chameleon
                 // return playerVoted to vote over event
                 io.to(this.code).emit('vote over');
+                clearInterval(this.timerInterval);
             }
         }
 
