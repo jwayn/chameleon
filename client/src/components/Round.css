@@ -3,7 +3,7 @@
     width: 100%;
     max-width: 500px;
     grid-template-columns: 25% 25% 25% 25%;
-    grid-template-rows: 20% 20% 20% 20%;
+    grid-template-rows: 20% 20% 20% 20% 20%;
     justify-content: center;
     grid-template-areas: "header header header header";
     background-color: #FAFAFA;
@@ -28,7 +28,7 @@
     color: #000000;
     font-family: 'Open Sans', Arial, Helvetica, sans-serif;
     background-color: #FAFAFA;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .round__topic__word:nth-child(8n+2),

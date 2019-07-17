@@ -1,0 +1,83 @@
+.vote__info__container {
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.vote__info {
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    background-color: #FAFAFA;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    border-radius: 4px;
+    padding: 5px;
+    transition: all .1s ease-in-out;
+}
+
+.vote__info:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 5px rgba(0, 0, 0, .5);
+    cursor: pointer;
+}
+
+
+
+
+.vote__info__playername {
+    color: #777777;
+}
+
+.vote__info__playeranswer {
+    font-family: 'Open Sans', sans-serif;
+    color: #000000;
+    font-size: 22px;
+    
+}
+
+.--hidden {
+    display: none;
+}
+
+.vote__selection-box {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    height: 35px;
+}
+
+.vote__selection-box>div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.vote__selection--enabled {
+    background-color: #47BC99;
+    width: 50%;
+}
+
+.vote__selection--disabled {
+    background-color: rgb(142, 235, 207);
+    width: 50%;
+    color: rgb(134, 218, 192);
+}
+
+.vote__selection--disabled:hover {
+    background-color: rgb(82, 204, 167);
+    color: #FAFAFA;
+}
+
+.vote__container { 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+}

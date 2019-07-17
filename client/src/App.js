@@ -134,7 +134,21 @@ class App extends Component {
 
     leaveGame = (socket) => {
         socket.emit('leave game');
-        this.setState({rendered: 'splash', isHost: false, players: [], code: ''});
+        this.setState({
+            socket: null,
+            rendered: 'splash',
+            isHost: false,
+            players: [],
+            code: '',
+            message: '',
+            topic: {},
+            timer: 0,
+            currentTurn: '',
+            showAlert: false,
+            alert: '',
+            messages: [],
+            playerAnswers: []
+        });
     }
 
     renderPage = (page) => {
@@ -167,7 +181,7 @@ class App extends Component {
                     <Round renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
                 }
                 {this.state.rendered === 'vote' &&
-                    <Vote renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} />
+                    <Vote renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} />
                 }
             </div>
         );
