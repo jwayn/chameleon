@@ -19,6 +19,7 @@ class App extends Component {
 
         this.state = {
             socket: null,
+            id: '',
             rendered: 'splash',
             isHost: false,
             players: [],
@@ -51,12 +52,12 @@ class App extends Component {
         
         socket.on('new game', data => {
             console.log('New game created with code: ', data.code);
-            this.setState({code: data.code, isHost: true});
+            this.setState({code: data.code, isHost: true, playerId: data.playerId});
         });
 
         socket.on('game joined', data => {
             console.log('Game was joined!');
-            this.setState({code: data.code});
+            this.setState({code: data.code, playerId: data.playerId});
         });
 
         socket.on('leave game', data => {
@@ -146,7 +147,8 @@ class App extends Component {
             showAlert: false,
             alert: '',
             messages: [],
-            playerAnswers: []
+            playerAnswers: [],
+            playerId: ''
         });
     }
 

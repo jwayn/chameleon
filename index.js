@@ -235,7 +235,7 @@ io.on('connection', (socket) => {
 
         // Push our games to the games array
         games.push(game);
-        io.to(socketId).emit('new game', {code: game.code});
+        io.to(socketId).emit('new game', {code: game.code, playerId: player.id});
     });
 
     socket.on("join game", (data) => {
@@ -249,7 +249,7 @@ io.on('connection', (socket) => {
                     let player = new Player(name, socket, socketId);
                     games[i].playerJoin(player, socket);
                     socket.join(room);
-                    io.to(socketId).emit('game joined', {code: games[i].code});
+                    io.to(socketId).emit('game joined', {code: games[i].code, playerId: player.id});
                     return;
                 } else {
                     io.to(socketId).emit('error', {message: 'Game already in progress.'});
