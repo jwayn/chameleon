@@ -16,7 +16,8 @@ export default class Vote extends Component {
     }
 
     selectClue = selectedClue => {
-        this.setState({selectedClue})
+        this.setState({selectedClue});
+        this.props.placeVote(selectedClue);
     }
 
     render() {
@@ -27,9 +28,13 @@ export default class Vote extends Component {
                 <div className="vote__container">
                     <div className={this.state.showVote ? "vote__info__container" : "--hidden"}>
                         {this.props.playerAnswers.map(player => {
-                            return(
-                                <Clue player={player} timer={this.props.timer} id={player.id} key={player.id} selectClue={this.selectClue} selectedClue={this.state.selectedClue} />
-                            )
+                            if(player.id !== this.props.playerId)  {
+                                return(
+                                    <Clue player={player} timer={this.props.timer} id={player.id} key={player.id} selectClue={this.selectClue} selectedClue={this.state.selectedClue} />
+                                )
+                            } else {
+                                return(<></>);
+                            }
                         })}
                     </div>
 

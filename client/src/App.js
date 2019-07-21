@@ -31,7 +31,8 @@ class App extends Component {
             showAlert: false,
             alert: '',
             messages: [],
-            playerAnswers: []
+            playerAnswers: [],
+            vote: ''
         }
     }
 
@@ -57,7 +58,7 @@ class App extends Component {
 
         socket.on('game joined', data => {
             console.log('Game was joined!');
-            this.setState({code: data.code, playerId: data.playerId});
+            this.setState({code: data.code, playerId: data.playerId });
         });
 
         socket.on('leave game', data => {
@@ -122,6 +123,10 @@ class App extends Component {
             this.setState({playerAnswers: data})
         });
 
+        socket.on("vote over", () => {
+            
+        })
+
         this.setState({socket});
     }
 
@@ -148,7 +153,8 @@ class App extends Component {
             alert: '',
             messages: [],
             playerAnswers: [],
-            playerId: ''
+            playerId: '',
+            vote: ''
         });
     }
 
@@ -161,6 +167,12 @@ class App extends Component {
     startGame = () => {
         console.log('Game starting!');
         this.state.socket.emit('start game', this.state.code);
+    }
+
+    placeVote = id => {
+        console.log(id);
+        this.setState({vote: id});
+        this.state.socket.emit('place vote', {code: this.state.code, id});
     }
     
     render() {
@@ -182,7 +194,7 @@ class App extends Component {
                     <Round renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
                 }
                 {this.state.rendered === 'vote' &&
-                    <Vote renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} />
+                    <Vote placeVote={this.placeVote} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} playerId={this.state.playerId} />
                 }
             </div>
         );

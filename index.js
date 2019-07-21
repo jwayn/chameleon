@@ -68,6 +68,14 @@ class Game {
         }
     }
 
+    getPlayerById(id) {
+        for(let i = 0; i < this.players.length; i++) {
+            if(this.players[i].id === id) {
+                return this.players[i];
+            }
+        }
+    }
+
     startRound() {
         this.players.forEach(player => {
             player.isChameleon = false;
@@ -138,7 +146,7 @@ class Game {
     }
 
     startVote() {
-        let seconds = 120;
+        let seconds = 20;
         const answers = this.players.map(player => {
             return {id: player.id, name: player.name, answer: player.submittedWord}
         });
@@ -149,15 +157,83 @@ class Game {
             io.to(this.code).emit('update timer', seconds);
             seconds--;
             if(seconds < 0) {
-                console.log(this.code);
-                // Get the player that was voted for, and compare to chameleon
-                // return playerVoted to vote over event
                 io.to(this.code).emit('vote over');
                 clearInterval(this.timerInterval);
+                this.evaluateVotes();
             }
         }
 
         this.timerInterval = setInterval(countDown, 1000);
+    }
+
+    tieBreaker(ids) {
+        let seconds = 30;
+        const answers = this.players.filter(player => {
+            for(let i = 0; i < ids.length; i++) {
+                if(player.id === ids[i]) {
+                    return player;
+                }
+            }
+        }).map(player => {
+            return {id: player.id, name: player.name, answer: player.submittedWord}
+        });
+        console.log(answers);
+        io.to(this.code).emit('start vote', answers);
+        io.to(this.code).emit('update timer', seconds);
+        let countDown = () => {
+            io.to(this.code).emit('update timer', seconds);
+            seconds--;
+            if(seconds < 0) {
+                io.to(this.code).emit('vote over');
+                clearInterval(this.timerInterval);
+                this.evaluateVotes();
+            }
+        }
+        this.timerInterval = setInterval(countDown, 1000);
+    }
+
+    evaluateVotes() {
+        const votes = [];
+        const counts = {};
+        
+        //Gather our votes
+        this.players.forEach(player => {
+            votes.push({playerName: player.name, vote: player.votedFor});
+        });
+
+        // Gather our vote count
+        for(let i = 0; i < votes.length; i++) {
+            counts[votes[i].vote] = 1 + (counts[votes[i].vote] || 0);
+        };
+
+        console.log(votes);
+        console.log(counts);
+         
+        //tally up and return the winner
+        const getMax = object => {
+            return Object.keys(object).filter(x => {
+                 return object[x] == Math.max.apply(null, 
+                 Object.values(object));
+           });
+        };
+
+        let winner = getMax(counts);
+        console.log(winner);
+
+        if(winner.length === 1) {
+            //If we have a clear winner, we're good to go!
+            let player = this.getPlayerById(winner[0]);
+            io.to(this.code).emit('results', {votes, playerName: player.name});
+        } else if (winner.length < 1) {
+            //If we have no votes, start the vote process over
+            this.startVote();
+        } else {
+            //If we have a tie, initiatie a tie breaker.
+            io.to(this.code).emit('tie');
+            this.tieBreaker(winner);
+        }
+
+
     }
 }
 
@@ -296,7 +372,7 @@ io.on('connection', (socket) => {
         selectedGame.sendMessage(data, selectedPlayer);
     })
 
-    socket.on("disconnect", (data => {
+    socket.on("disconnect", data => {
         // Remove the disconnected player from any active games
         games.forEach(game => {
             game.players.forEach(player => {
@@ -306,7 +382,14 @@ io.on('connection', (socket) => {
             })
         })
         connections.splice(connections.indexOf(socket), 1);
-    }));
+    });
+
+    socket.on("place vote", data => {
+        console.log(data);
+        let currentGame = getGame(data.code);
+        let currentPlayer = currentGame.getPlayer(socket);
+        currentPlayer.vote(data.id);
+    });
 });
 
 server.listen(port, () => {
