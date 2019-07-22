@@ -226,6 +226,10 @@ class Game {
             //If we have a clear winner, we're good to go!
             let winningPlayer = this.getPlayerById(winner[0]);
             io.to(this.code).emit('results', {winningPlayer: winningPlayer.name, chameleon: this.chameleon.name});
+            this.players.forEach(player => {
+                player.socket.leave(`${this.code}-chameleon`);
+                player.socket.leave(`${this.code}-players`);
+            })
         } else if (winner.length < 1) {
             //If we have no votes, start the vote process over
             this.startVote();
@@ -383,11 +387,16 @@ io.on('connection', (socket) => {
         games.forEach(game => {
             game.players.forEach(player => {
                 if(player.socket === socket) {
-                    game.playerLeave(player);
+                    if(player.isHost) {
+                        console.log('Host left!');
+                        io.to(game.code).emit('leave game', 'The host disbanded the game.');
+                        games.splice(games.indexOf(game), 1);
+                    } else {
+                        game.playerLeave(player);
+                    }
                 }
             })
-        })
-        connections.splice(connections.indexOf(socket), 1);
+        });
     });
 
     socket.on("place vote", data => {

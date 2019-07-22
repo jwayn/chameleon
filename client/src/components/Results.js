@@ -19,7 +19,7 @@ export default class Results extends Component {
     render() {
         return (
             <div className="main-container --results">
-                {!this.props.isChameleon && this.state.voteCorrect &&
+                {!this.props.isChameleon &&
                     <>
                         <h2>The results are in!</h2>
                         <p>You thought the chameleon was <strong>{this.props.winningPlayer}</strong>.</p>

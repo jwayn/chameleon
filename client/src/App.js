@@ -85,20 +85,14 @@ class App extends Component {
         socket.on("game started", data => {
             this.setState({
                 message: '',
-                topic: {},
                 timer: 0,
                 currentTurn: '',
-                showAlert: false,
-                alert: '',
-                messages: [],
                 playerAnswers: [],
                 vote: '',
                 isChameleon: false,
                 tieBreaker: false
             });
             if(data.playerType !== 'chameleon'){
-                console.log(data.topic);
-                console.log(data.secretWord);
                 this.setState({topic: data.topic, secretWord: data.secretWord});
                 this.renderPage('round');
             } else {
