@@ -7,6 +7,7 @@ import JoinGame from './components/JoinGame';
 import Lobby from './components/Lobby';
 import Round from './components/Round';
 import Vote from './components/Vote';
+import Results from './components/Results';
 
 // enable vibration support
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
@@ -32,7 +33,9 @@ class App extends Component {
             alert: '',
             messages: [],
             playerAnswers: [],
-            vote: ''
+            vote: '',
+            isChameleon: false,
+            tieBreaker: false
         }
     }
 
@@ -80,6 +83,19 @@ class App extends Component {
         })
 
         socket.on("game started", data => {
+            this.setState({
+                message: '',
+                topic: {},
+                timer: 0,
+                currentTurn: '',
+                showAlert: false,
+                alert: '',
+                messages: [],
+                playerAnswers: [],
+                vote: '',
+                isChameleon: false,
+                tieBreaker: false
+            });
             if(data.playerType !== 'chameleon'){
                 console.log(data.topic);
                 console.log(data.secretWord);
@@ -97,6 +113,10 @@ class App extends Component {
                 navigator.vibrate(3000);
             }
         });
+
+        socket.on("chameleon", () => {
+            this.setState({isChameleon: true});
+        })
 
         socket.on("turn over", () => {
             this.setState({isMyTurn: false});
@@ -123,8 +143,13 @@ class App extends Component {
             this.setState({playerAnswers: data})
         });
 
-        socket.on("vote over", () => {
-            
+        socket.on("tie breaker", () => {
+            this.setState({tieBreaker: true});
+        })
+
+        socket.on("results", data => {
+            this.setState({chameleon: data.chameleon, winningPlayer: data.winningPlayer});
+            this.renderPage('results');
         })
 
         this.setState({socket});
@@ -154,7 +179,9 @@ class App extends Component {
             messages: [],
             playerAnswers: [],
             playerId: '',
-            vote: ''
+            vote: '',
+            isChameleon: false,
+            tieBreaker: false
         });
     }
 
@@ -194,7 +221,10 @@ class App extends Component {
                     <Round renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
                 }
                 {this.state.rendered === 'vote' &&
-                    <Vote placeVote={this.placeVote} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} playerId={this.state.playerId} />
+                    <Vote tieBreaker={this.state.tieBreaker} placeVote={this.placeVote} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} playerId={this.state.playerId} />
+                }
+                {this.state.rendered === 'results' &&
+                    <Results messages={this.state.messages} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} chameleon={this.state.chameleon} startGame={this.startGame} winningPlayer={this.state.winningPlayer} isChameleon={this.state.isChameleon} />
                 }
             </div>
         );

@@ -77,12 +77,14 @@ class Game {
     }
 
     startRound() {
+        console.log('Round starting.');
         this.players.forEach(player => {
             player.isChameleon = false;
             player.wordGiven = '';
             player.votedFor = '';
         });
         this.status = 'inProgess';
+        this.turn = 0;
         this.chameleon = this.players[Math.floor(Math.random() * this.players.length)];
         this.topic = topics[Math.floor(Math.random() * topics.length)];
         this.secretWord = this.topic.words[Math.floor(Math.random() * this.topic.words.length)];
@@ -101,6 +103,7 @@ class Game {
         this.shuffle(this.players);
 
         io.to(`${this.code}-chameleon`).emit('game started', {topic: this.topic, playerType: 'chameleon'});
+        io.to(`${this.code}-chameleon`).emit('chameleon');
         io.to(`${this.code}-players`).emit('game started', {topic: this.topic, playerType: 'player', secretWord: this.secretWord});
         this.playerTurn(this.players[this.turn]);
     };
@@ -109,7 +112,6 @@ class Game {
 
         io.to(this.code).emit('update timer', seconds)
         let countDown = () => {
-            console.log('lol timer is updating');
             io.to(this.code).emit('update timer', seconds)
             seconds--;
             if(seconds < 0) {
@@ -123,7 +125,6 @@ class Game {
     }
 
     playerTurn(player) {
-        console.log(player.socketId);
         console.log(player.name + "'s turn");
         io.to(this.code).emit('receive message', {author: 'System', content: `It is ${player.name}'s turn.`});
         io.to(player.socketId).emit('my turn');
@@ -178,6 +179,7 @@ class Game {
             return {id: player.id, name: player.name, answer: player.submittedWord}
         });
         console.log(answers);
+        io.to(this.code).emit('tie breaker');
         io.to(this.code).emit('start vote', answers);
         io.to(this.code).emit('update timer', seconds);
         let countDown = () => {
@@ -206,8 +208,8 @@ class Game {
             counts[votes[i].vote] = 1 + (counts[votes[i].vote] || 0);
         };
 
-        console.log(votes);
-        console.log(counts);
+        console.log('Votes: ', votes);
+        console.log('Counts: ', counts);
          
         //tally up and return the winner
         const getMax = object => {
@@ -218,17 +220,22 @@ class Game {
         };
 
         let winner = getMax(counts);
-        console.log(winner);
+        console.log('winner: ', winner[0]);
 
         if(winner.length === 1) {
             //If we have a clear winner, we're good to go!
-            let player = this.getPlayerById(winner[0]);
-            io.to(this.code).emit('results', {votes, playerName: player.name});
+            let winningPlayer = this.getPlayerById(winner[0]);
+            io.to(this.code).emit('results', {winningPlayer: winningPlayer.name, chameleon: this.chameleon.name});
         } else if (winner.length < 1) {
             //If we have no votes, start the vote process over
             this.startVote();
         } else {
             //If we have a tie, initiatie a tie breaker.
+
+            //Reset the votes
+            // this.players.forEach(player => {
+            //     player.votedFor = '';
+            // });
             io.to(this.code).emit('tie');
             this.tieBreaker(winner);
         }
@@ -352,7 +359,7 @@ io.on('connection', (socket) => {
         let currentGame = getGame(data.code);
         let currentPlayer = currentGame.getPlayer(socket);
         currentPlayer.submitWord(data.word);
-        io.to(data.code).emit('alert', {message: `${currentPlayer.name}'s clue is '${data.word}'.`});
+        io.to(data.code).emit('alert', {message: `${currentPlayer.name}'s clue is '${data.word || 'N/A'}'.`});
         currentGame.endTurn();
     });
 
@@ -366,7 +373,6 @@ io.on('connection', (socket) => {
     })
 
     socket.on("receive message", data => {
-        console.log(data);
         const selectedGame = getGame(data.code);
         const selectedPlayer = selectedGame.getPlayer(socket);
         selectedGame.sendMessage(data, selectedPlayer);
@@ -385,7 +391,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on("place vote", data => {
-        console.log(data);
+        console.log('Vote from client: ', data);
         let currentGame = getGame(data.code);
         let currentPlayer = currentGame.getPlayer(socket);
         currentPlayer.vote(data.id);

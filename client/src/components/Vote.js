@@ -24,6 +24,7 @@ export default class Vote extends Component {
         return (
             <div className="main-container --vote">
                 <h2>It's time to vote!</h2>
+                {this.props.tieBreaker && <h2>TIE BREAKER!</h2>}
                 <h2>{this.props.timer}</h2>
                 <div className="vote__container">
                     <div className={this.state.showVote ? "vote__info__container" : "--hidden"}>
