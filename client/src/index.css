@@ -84,6 +84,7 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   width: 100%;
   max-width: 85%;
   margin-top: 10px;
@@ -94,6 +95,8 @@ input {
   border: none;
   border-radius: 4px;
   height: 60px;
+  width: 100%;
+  max-width: 500px;
   margin: 0 0 15px 0;
   color: #2C2C2C;
   padding: 0 10px;

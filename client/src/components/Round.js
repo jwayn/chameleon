@@ -13,8 +13,11 @@ export default class Round extends Component {
         this.clue = React.createRef();
     }
 
-    submitWord = word => {
-        this.props.socket.emit('word submitted', {code: this.props.code, word: this.clue.current.value});
+    submitWord = e => {
+        e.preventDefault();
+        if(this.clue.current.value !== '') {
+            this.props.socket.emit('word submitted', {code: this.props.code, word: this.clue.current.value});
+        }
     }
 
     render() {
@@ -46,13 +49,11 @@ export default class Round extends Component {
                     }
                     <div className="round__timer">{this.props.currentTurn} has {this.props.timer} seconds to answer.</div>
                     {this.props.isMyTurn === true &&
-                        <div className="form-group">
+                        <form className="form-group">
                             <label>Your clue:</label>
                             <input maxLength="36" ref={this.clue} />
-                            <div className="button-group">
-                                <button className="button--default" onClick={this.submitWord}>Submit</button>
-                            </div>
-                        </div>
+                            <button className="button--default" onClick={this.submitWord} type="submit">Submit</button>
+                        </form>
                     }
                     <Chat messages={this.props.messages} code={this.props.code} socket={this.props.socket} />
                 </div>

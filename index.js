@@ -147,7 +147,7 @@ class Game {
     }
 
     startVote() {
-        let seconds = 20;
+        let seconds = 30;
         const answers = this.players.map(player => {
             return {id: player.id, name: player.name, answer: player.submittedWord}
         });
@@ -168,7 +168,7 @@ class Game {
     }
 
     tieBreaker(ids) {
-        let seconds = 30;
+        let seconds = 15;
         const answers = this.players.filter(player => {
             for(let i = 0; i < ids.length; i++) {
                 if(player.id === ids[i]) {
@@ -200,7 +200,9 @@ class Game {
         
         //Gather our votes
         this.players.forEach(player => {
-            votes.push({playerName: player.name, vote: player.votedFor});
+            if(player.votedFor != '') {
+                votes.push({playerName: player.name, vote: player.votedFor});
+            }
         });
 
         // Gather our vote count
@@ -390,8 +392,10 @@ io.on('connection', (socket) => {
                     if(player.isHost) {
                         console.log('Host left!');
                         io.to(game.code).emit('leave game', 'The host disbanded the game.');
+                        clearInterval(game.timerInterval);
                         games.splice(games.indexOf(game), 1);
                     } else {
+                        game.sendMessage(`${player.name} has left the game.`, 'System');
                         game.playerLeave(player);
                     }
                 }
