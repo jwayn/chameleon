@@ -218,7 +218,7 @@ class App extends Component {
                     <Vote tieBreaker={this.state.tieBreaker} placeVote={this.placeVote} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} playerId={this.state.playerId} />
                 }
                 {this.state.rendered === 'results' &&
-                    <Results messages={this.state.messages} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} chameleon={this.state.chameleon} startGame={this.startGame} winningPlayer={this.state.winningPlayer} isChameleon={this.state.isChameleon} />
+                    <Results messages={this.state.messages} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} chameleon={this.state.chameleon} startGame={this.startGame} winningPlayer={this.state.winningPlayer} isChameleon={this.state.isChameleon}/>
                 }
             </div>
         );

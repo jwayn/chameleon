@@ -31,6 +31,7 @@ export default class Results extends Component {
                 {this.props.isChameleon && this.state.voteCorrect && 
                     <>
                         <h2>You've been found!</h2>
+                        <p>Do you know what the secret word was?</p>
                     </>
                 }
 

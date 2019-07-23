@@ -19,8 +19,10 @@ export default class Chat extends Component {
         this.chatEnd.scrollIntoView({behavior: "smooth"});
     }
 
-    componentDidUpdate() {
-        this.scrollToBottom();
+    componentDidUpdate(prevProps) {
+        if(prevProps.messages !== this.props.messages) {
+            this.scrollToBottom();
+        }
     }
 
     render() {
