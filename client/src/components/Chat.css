@@ -36,6 +36,7 @@
     width: 100%;
     display: flex;
     flex-direction: row nowrap;
+    justify-content: center;
 }
 
 .chat__submit__input {
@@ -49,6 +50,7 @@
     text-align: left;
     height: auto;
     margin: 5px;
+    max-width: 1080px;
 }
 
 .chat__submit__button {
