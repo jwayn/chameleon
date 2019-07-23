@@ -74,6 +74,10 @@ button {
   margin: 0;
 }
 
+h2, h3 {
+  text-align: center;
+}
+
 .title h1 {
   font-size: 70px;
   margin: 0;

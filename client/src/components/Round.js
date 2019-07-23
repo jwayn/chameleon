@@ -37,14 +37,17 @@ export default class Round extends Component {
                         }
                     </div>
 
-                    {this.props.playerType === 'player' &&
-                        <div className="round__secret">
-                            <p></p>
+                    {this.props.isChameleon && 
+                        <div>
+                            <h3>You are the</h3> 
+                            <h2>CHAMELEON</h2>
                         </div>
                     }
-                    {this.props.playerType === 'chameleon' && 
+
+                    {!this.props.isChameleon && 
                         <div>
-                            <h3>You are the CHAMELEON!</h3> 
+                            <h3>The secret word is</h3>
+                            {this.props.secretWord && <h2>{this.props.secretWord.toUpperCase()}</h2>}
                         </div>
                     }
                     <div className="round__timer">{this.props.currentTurn} has {this.props.timer} seconds to answer.</div>

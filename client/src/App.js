@@ -212,7 +212,7 @@ class App extends Component {
                     <Lobby renderPage={this.renderPage} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} players={this.state.players} leaveGame={this.leaveGame} startGame={this.startGame} />
                 }
                 {this.state.rendered === 'round' &&
-                    <Round renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
+                    <Round isChameleon={this.state.isChameleon} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerType={this.state.playerType} currentTurn={this.state.currentTurn} topic={this.state.topic} secretWord={this.state.secretWord} isMyTurn={this.state.isMyTurn} timer={this.state.timer} />
                 }
                 {this.state.rendered === 'vote' &&
                     <Vote tieBreaker={this.state.tieBreaker} placeVote={this.placeVote} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} playerId={this.state.playerId} />
