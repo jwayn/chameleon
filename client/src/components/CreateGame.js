@@ -15,9 +15,10 @@ export default class CreateGame extends Component {
 
     createGame = e => {
         e.preventDefault();
-        let socket = this.props.socket;
-        socket.emit('create game', this.name.current.value);
-        this.props.renderPage('lobby');
+        if(this.name.current.value !== '') {
+            this.props.socket.emit('create game', this.name.current.value);
+            this.props.renderPage('lobby');
+        }
     }
     
     render() {
