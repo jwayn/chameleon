@@ -395,7 +395,9 @@ io.on('connection', (socket) => {
                         clearInterval(game.timerInterval);
                         games.splice(games.indexOf(game), 1);
                     } else {
-                        game.sendMessage(`${player.name} has left the game.`, 'System');
+                        let message = `${player.name} has left the game.`;
+                        console.log(message);
+                        io.to(game.code).emit('receive message', {author: 'System', content: message});
                         game.playerLeave(player);
                     }
                 }
