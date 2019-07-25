@@ -12,7 +12,7 @@ import Results from './components/Results';
 // enable vibration support
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 
-const socketUrl = process.env.NODE_ENV !== 'production' ?  process.env.SOCKET_URL : "http://chameleon.jwayne.dev:8080/";
+const socketUrl = process.env.NODE_ENV !== 'production' ?  process.env.SOCKET_URL : "https://chameleon.jwayne.dev/";
 class App extends Component {
 
     constructor(props) {
@@ -44,7 +44,6 @@ class App extends Component {
     }
 
     createAlert = (message) => {
-        console.log(message);
         this.setState({messages: [ ...this.state.messages, {author: 'System', content: message} ]});
     };
 
@@ -55,12 +54,10 @@ class App extends Component {
         });
         
         socket.on('new game', data => {
-            console.log('New game created with code: ', data.code);
             this.setState({code: data.code, isHost: true, playerId: data.playerId});
         });
 
         socket.on('game joined', data => {
-            console.log('Game was joined!');
             this.setState({code: data.code, playerId: data.playerId });
         });
 
@@ -70,7 +67,6 @@ class App extends Component {
         });
 
         socket.on("update players", (players) => {
-            console.log('Updating players for the lobby!');
             this.setState({players})
         });
 
@@ -129,7 +125,6 @@ class App extends Component {
         });
 
         socket.on("start vote", answers => {
-            console.log(answers);
             this.setState({playerAnswers: answers, rendered: 'vote'})
         });
 
@@ -186,14 +181,12 @@ class App extends Component {
     }
 
     startGame = () => {
-        console.log('Game starting!');
         if(this.state.players.length > 2) {
             this.state.socket.emit('start game', this.state.code);
         }
     }
 
     placeVote = id => {
-        console.log(id);
         this.setState({vote: id});
         this.state.socket.emit('place vote', {code: this.state.code, id});
     }
