@@ -17,7 +17,8 @@ export default class Lobby extends Component {
                         <h2>Game Code:</h2>
                         <h1>{this.props.code}</h1>
                     </div>
-                    <p>Do not lock your device, or you will be disconnected.</p>
+                    <p className="lobby__info">Do not lock your device, or you will be disconnected.</p>
+                    <p className="lobby__info">You need at least 3 players to play.</p>
                     <div className="lobby__players">
                         <h2>{`${this.props.players.length} of 8 players.`}</h2>
                         {this.props.players.map(player => {

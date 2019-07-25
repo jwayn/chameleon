@@ -12,14 +12,6 @@ app.use(express.json());
 let games = [];
 let connections = [];
 
-function getGame(code) {
-    for(let i = 0; i < games.length; i++) {
-        if (games[i].code === code) {
-            return games[i];
-        }
-    }
-};
-
 class Game {
     constructor(host, socket) {
         this.code = generateCode(4);
@@ -37,6 +29,7 @@ class Game {
         }
     }
 
+    // Join a player to this game
     playerJoin(player, socket) {
         this.players.push(player);
         //update lobby with player names
@@ -45,6 +38,7 @@ class Game {
         io.to(this.code).emit('update players', this.players.map(player => player.name));
     };
 
+    //Send a chat message to this game
     sendMessage(message, player) {
         io.to(this.code).emit('receive message', {author: player.name, content: message.content});
     }
@@ -250,24 +244,14 @@ class Game {
     }
 }
 
-app.post('/join', async (req, res) => {
-    console.log('Trying to join...');
-    let room = req.body.code;
-    let name = req.body.name;
-
-    // Check existence of game, and add player to it if it exists. 
+// Utility function to get a game by the gamecode
+function getGame(code) {
     for(let i = 0; i < games.length; i++) {
-        if(games[i].code === room) {
-            if(games[i].status === 'lobby') {
-                return res.json({room})
-            } else {
-                return res.status(403).json({message: 'Game already in progress.'})
-            }
+        if (games[i].code === code) {
+            return games[i];
         }
-    };
-    res.status(403).json({message: 'Game does not exist.'});
-});
-
+    }
+};
 
 class Player {
     constructor(name, socket, socketId) {
@@ -290,6 +274,26 @@ class Player {
         this.submittedWord = word;
     };
 }
+
+app.use(express.static(__dirname + '/public'));
+
+app.post('/join', async (req, res) => {
+    console.log('Trying to join...');
+    let room = req.body.code;
+    let name = req.body.name;
+
+    // Check existence of game, and add player to it if it exists. 
+    for(let i = 0; i < games.length; i++) {
+        if(games[i].code === room) {
+            if(games[i].status === 'lobby') {
+                return res.json({room})
+            } else {
+                return res.status(403).json({message: 'Game already in progress.'})
+            }
+        }
+    };
+    res.status(403).json({message: 'Game does not exist.'});
+});
 
 function generateCode(len) {
     let code = "";

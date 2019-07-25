@@ -12,7 +12,7 @@ import Results from './components/Results';
 // enable vibration support
 navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
 
-const socketUrl = "http://192.168.1.194:8080/";
+const socketUrl = process.env.NODE_ENV !== 'production' ?  process.env.SOCKET_URL : "http://chameleon.jwayne.dev:8080/";
 class App extends Component {
 
     constructor(props) {
@@ -187,7 +187,9 @@ class App extends Component {
 
     startGame = () => {
         console.log('Game starting!');
-        this.state.socket.emit('start game', this.state.code);
+        if(this.state.players.length > 2) {
+            this.state.socket.emit('start game', this.state.code);
+        }
     }
 
     placeVote = id => {
