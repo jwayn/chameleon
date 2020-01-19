@@ -22,13 +22,13 @@ export default class Lobby extends Component {
                     <div className="lobby__players">
                         <h2>{`${this.props.players.length} of 8 players.`}</h2>
                         {this.props.players.map(player => {
-                                return (<h2>{player}</h2>)
+                                return (<h2 key={player.id}>{player}</h2>)
                             }
                         )}
                     </div>
                     {this.props.isHost &&
                     <div className="button-group">
-                            <button className="button--default" onClick={this.props.startGame}>Start Game</button>
+                        <button className="button--default" onClick={this.props.startGame}>Start Game</button>
                     </div>
                     }
                 </div>
