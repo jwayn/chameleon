@@ -32,7 +32,7 @@ export default class Chat extends Component {
                     {this.props.messages.map(message => {
                         return(
                                 <div className="chat__message">
-                                    <span className="chat__message__author">{message.author}</span>: {message.content}
+                                    <span className="chat__message__author" style={message.author === 'System' ? {color: 'red'} : {}}>{message.author}</span>: {message.content}
                                 </div>
                         )
                     })}

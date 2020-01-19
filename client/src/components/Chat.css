@@ -23,7 +23,7 @@
 .chat__message {
     color: #000000;
     font-family: 'Open Sans', sans-serif;
-    padding: 5px;
+    padding: 10px 5px;
 }
 
 .chat__message__author {
