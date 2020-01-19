@@ -7,13 +7,22 @@ export default class Results extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {voteCorrect: false};
+        this.state = {
+            voteCorrect: false,
+            topics: [],
+        };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if(this.props.chameleon === this.props.winningPlayer) {
             this.setState({voteCorrect: true});
         }
+
+        let data = await fetch('/topics');
+        let topics = await data.json();
+        topics.sort();
+        topics.unshift('Random');
+        this.setState({topics});
     }
 
     render() {
@@ -41,9 +50,20 @@ export default class Results extends Component {
                     </>
                 }
                 {this.props.isHost &&
-                    <div className="button-group">
+                    <>
+                        <div className="results__form-group">
+                            <label>Topic</label>
+                            <select onChange={this.props.changeTopic}>
+                                {this.state.topics.map(topic => {
+                                    return (<option value={topic} key={topic}>{topic}</option>);
+                                })
+                                }
+                            </select>
+                        </div>
+                        <div className="button-group">
                             <button className="button--default" onClick={this.props.startGame}>New Game?</button>
-                    </div>
+                        </div>
+                    </>
                 }
                 <Chat messages={this.props.messages} code={this.props.code} socket={this.props.socket} />
             </div>

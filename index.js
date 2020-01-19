@@ -13,13 +13,17 @@ let games = [];
 let connections = [];
 
 class Game {
-    constructor(host, socket) {
+    constructor(host, socket, voteTime, turnTime, topicSelected) {
+        this.id = uuid();
         this.code = generateCode(4);
         this.players = [];
         this.chat = [];
         this.playerJoin(host, socket);
         this.turn = 0;
         this.status = 'lobby';
+        this.voteTime = voteTime || 30;
+        this.turnTime = turnTime || 30;
+        this.topicSelected = topicSelected || 'random';
     }
 
     shuffle(array) {
@@ -33,7 +37,7 @@ class Game {
     playerJoin(player, socket) {
         this.players.push(player);
         //update lobby with player names
-        console.log(this.code);
+        console.log(player.name, this.code);
         socket.join(this.code);
         io.to(this.code).emit('update players', this.players.map(player => player.name));
     };
@@ -70,7 +74,7 @@ class Game {
         }
     }
 
-    startRound() {
+    startRound(topic='') {
         console.log('Round starting.');
         this.players.forEach(player => {
             player.isChameleon = false;
@@ -80,7 +84,28 @@ class Game {
         this.status = 'inProgess';
         this.turn = 0;
         this.chameleon = this.players[Math.floor(Math.random() * this.players.length)];
-        this.topic = topics[Math.floor(Math.random() * topics.length)];
+
+        // Select topic with topic name, or random if topic = "random" || falsy
+        if(!topic) {
+            console.log('No topic passed, must be a fresh game.')
+            console.log('Topic selected: ', this.topicSelected);
+            if(!this.topicSelected || this.topicSelected.toLowerCase() === 'random') {
+                console.log('Random topic');
+                this.topic = topics[Math.floor(Math.random() * topics.length)];
+            } else {
+                console.log('Non-random topic');
+                this.topic = topics.filter(topic => topic.topic === this.topicSelected);
+                this.topic = this.topic[0];
+            }
+        } else {
+            console.log('Topic passed, must be a new game from results screen')
+            this.topic = topics.filter(topicObj => topicObj.topic === topic);
+            this.topic = this.topic[0];
+        }
+
+        console.log('Selected Topic: ', this.topicSelected, 'Actual Topic: ', this.topic)
+
+
         this.secretWord = this.topic.words[Math.floor(Math.random() * this.topic.words.length)];
         //join chameleon to room-chameleon
         //join others to room-players
@@ -123,7 +148,7 @@ class Game {
         io.to(this.code).emit('receive message', {author: 'System', content: `It is ${player.name}'s turn.`});
         io.to(player.socketId).emit('my turn');
         io.to(this.code).emit('current turn', player.name);
-        this.startTimer(30, player);
+        this.startTimer(this.turnTime, player);
     };
 
     endTurn() {
@@ -141,7 +166,7 @@ class Game {
     }
 
     startVote() {
-        let seconds = 30;
+        let seconds = this.voteTime;
         const answers = this.players.map(player => {
             return {id: player.id, name: player.name, answer: player.submittedWord}
         });
@@ -295,6 +320,10 @@ app.post('/join', async (req, res) => {
     res.status(403).json({message: 'Game does not exist.'});
 });
 
+app.get('/topics', async (req, res) => {
+    res.json(topics.map(topic => topic.topic));
+});
+
 function generateCode(len) {
     let code = "";
 
@@ -315,12 +344,13 @@ io.on('connection', (socket) => {
     const socketId = socket.id;
     connections.push(socket);
 
-    socket.on("create game", (name) => {
+    socket.on("create game", (config) => {
+        console.log(config);
         // Create our new player instance
-        let player = new Player(name, socket, socketId);
+        let player = new Player(config.name, socket, socketId);
         player.isHost = true;
         // Create our new game instance
-        let game = new Game(player, socket);
+        let game = new Game(player, socket, config.turnTime, config.voteTime, config.topic);
 
         // Grab the room code and join the socket to it
         let room = game.code;
@@ -373,11 +403,12 @@ io.on('connection', (socket) => {
         currentGame.endTurn();
     });
 
-    socket.on("start game", code => {
+    socket.on("start game", config => {
         console.log('Game starting.');
+        console.log('Game config: ', config);
         games.forEach(game => {
-            if(game.code === code) {
-                game.startRound();
+            if(game.code === config.code) {
+                game.startRound(config.topic);
             }
         })
     })

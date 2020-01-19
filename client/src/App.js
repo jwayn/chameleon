@@ -35,7 +35,8 @@ class App extends Component {
             playerAnswers: [],
             vote: '',
             isChameleon: false,
-            tieBreaker: false
+            tieBreaker: false,
+            selectedTopic: null,
         }
     }
 
@@ -170,7 +171,8 @@ class App extends Component {
             playerId: '',
             vote: '',
             isChameleon: false,
-            tieBreaker: false
+            tieBreaker: false,
+            selectedTopic: '',
         });
     }
 
@@ -182,13 +184,17 @@ class App extends Component {
 
     startGame = () => {
         if(this.state.players.length > 2) {
-            this.state.socket.emit('start game', this.state.code);
+            this.state.socket.emit('start game', {code: this.state.code, topic: this.state.selectedTopic ? this.state.selectedTopic : null});
         }
     }
 
     placeVote = id => {
         this.setState({vote: id});
         this.state.socket.emit('place vote', {code: this.state.code, id});
+    }
+
+    changeTopic = e => {
+        this.setState({selectedTopic: e.target.value});
     }
     
     render() {
@@ -213,7 +219,7 @@ class App extends Component {
                     <Vote tieBreaker={this.state.tieBreaker} placeVote={this.placeVote} renderPage={this.renderPage} messages={this.state.messages} socket={this.state.socket} code={this.state.code} playerAnswers={this.state.playerAnswers} topic={this.state.topic} secretWord={this.state.secretWord} timer={this.state.timer} playerId={this.state.playerId} />
                 }
                 {this.state.rendered === 'results' &&
-                    <Results messages={this.state.messages} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} chameleon={this.state.chameleon} startGame={this.startGame} winningPlayer={this.state.winningPlayer} isChameleon={this.state.isChameleon}/>
+                    <Results messages={this.state.messages} socket={this.state.socket} isHost={this.state.isHost} code={this.state.code} chameleon={this.state.chameleon} startGame={this.startGame} winningPlayer={this.state.winningPlayer} isChameleon={this.state.isChameleon} topic={this.selectedTopic} changeTopic={this.changeTopic} />
                 }
             </div>
         );
